@@ -1,0 +1,308 @@
+{
+  "info": {
+    "name": "Appointment Booking Management System API",
+    "description": "Comprehensive Postman collection for the ShadowFox Appointment Booking Management System API. Includes valid workflows, edge cases, error scenarios, filtering, searching, and lifecycle transitions.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "appointment_id",
+      "value": "7",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Root & Overview",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/",
+          "host": ["{{base_url}}"],
+          "path": [""]
+        },
+        "description": "Returns API overview and index of available endpoints."
+      }
+    },
+    {
+      "name": "1. Create Appointment (Success - 201)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customer_name\": \"Kavya Menon\",\n  \"email\": \"kavya.menon@example.com\",\n  \"phone\": \"+91-9876543220\",\n  \"service\": \"Physiotherapy Assessment\",\n  \"appointment_date\": \"2026-10-25\",\n  \"appointment_time\": \"15:00:00\",\n  \"notes\": \"Rehabilitation session for shoulder pain.\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}%/api/appointments/".replace("%", ""),
+          "host": ["{{base_url}}"],
+          "path": ["api", "appointments", ""]
+        },
+        "description": "Creates a new appointment. Rejects past dates and occupied slots. Returns HTTP 201 Created."
+      }
+    },
+    {
+      "name": "2. Create Appointment (Error - Past Date - 400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customer_name\": \"Old Booking\",\n  \"email\": \"old@example.com\",\n  \"service\": \"General Checkup\",\n  \"appointment_date\": \"2020-01-01\",\n  \"appointment_time\": \"10:00:00\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/appointments/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "appointments", ""]
+        },
+        "description": "Demonstrates rejection when an appointment is booked in the past. Returns HTTP 400 Bad Request."
+      }
+    },
+    {
+      "name": "3. Create Appointment (Error - Slot Conflict - 400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customer_name\": \"Duplicate Slot Tester\",\n  \"email\": \"dup@example.com\",\n  \"service\": \"Dental Scaling\",\n  \"appointment_date\": \"2026-10-20\",\n  \"appointment_time\": \"11:30:00\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/appointments/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "appointments", ""]
+        },
+        "description": "Attempts to book a slot that is already booked by another active appointment. Returns HTTP 400 Bad Request."
+      }
+    },
+    {
+      "name": "4. Create Appointment (Error - Missing Fields - 400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phone\": \"+91-9999999999\",\n  \"notes\": \"Missing all required customer and service info\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/appointments/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "appointments", ""]
+        },
+        "description": "Validates required fields: customer_name, email, service, appointment_date, appointment_time. Returns HTTP 400 Bad Request."
+      }
+    },
+    {
+      "name": "5. List All Appointments (200)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/appointments/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "appointments", ""]
+        },
+        "description": "Returns a JSON list of all appointments sorted by appointment_date and appointment_time."
+      }
+    },
+    {
+      "name": "6. Filter Appointments by Status (200)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/appointments/?status=booked",
+          "host": ["{{base_url}}"],
+          "path": ["api", "appointments", ""],
+          "query": [
+            {
+              "key": "status",
+              "value": "booked"
+            }
+          ]
+        },
+        "description": "Filter appointments by status (booked, completed, cancelled)."
+      }
+    },
+    {
+      "name": "7. Search Appointments by Name or Email (200)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/appointments/?search=Aarav",
+          "host": ["{{base_url}}"],
+          "path": ["api", "appointments", ""],
+          "query": [
+            {
+              "key": "search",
+              "value": "Aarav"
+            }
+          ]
+        },
+        "description": "Performs case-insensitive substring search across customer_name and email fields."
+      }
+    },
+    {
+      "name": "8. Retrieve Appointment by ID (200)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/appointments/{{appointment_id}}/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "appointments", "{{appointment_id}}", ""]
+        },
+        "description": "Retrieves full details of a specific appointment by primary key."
+      }
+    },
+    {
+      "name": "9. Retrieve Nonexistent Appointment (404)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/appointments/99999/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "appointments", "99999", ""]
+        },
+        "description": "Returns HTTP 404 Not Found when requesting an appointment that does not exist."
+      }
+    },
+    {
+      "name": "10. Reschedule / Update Appointment (200)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"appointment_date\": \"2026-10-26\",\n  \"appointment_time\": \"16:00:00\",\n  \"notes\": \"Rescheduled due to client request.\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/appointments/{{appointment_id}}/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "appointments", "{{appointment_id}}", ""]
+        },
+        "description": "Reschedules an active appointment. Revalidates new date/time against past dates and conflicting slots."
+      }
+    },
+    {
+      "name": "11. Cancel Appointment (200)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/appointments/{{appointment_id}}/cancel/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "appointments", "{{appointment_id}}", "cancel", ""]
+        },
+        "description": "Transitions appointment status to 'cancelled'. Releases the time slot for future bookings."
+      }
+    },
+    {
+      "name": "12. Mark Appointment Completed (200)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/appointments/8/complete/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "appointments", "8", "complete", ""]
+        },
+        "description": "Transitions appointment status to 'completed'. Prevents subsequent cancellations or rescheduling."
+      }
+    },
+    {
+      "name": "13. Delete Appointment (204)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/appointments/{{appointment_id}}/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "appointments", "{{appointment_id}}", ""]
+        },
+        "description": "Permanently removes the appointment record from the database. Returns HTTP 204 No Content."
+      }
+    }
+  ]
+}
